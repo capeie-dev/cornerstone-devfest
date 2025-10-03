@@ -1,0 +1,62 @@
+1.Manufacturer UI:
+    1. This is where the manufacturer can register themseleves and their capabilities.
+    2. a rolling bid window that they can submit their bids on
+    3. if they win a bid, a chat bot situation where they can interact with our system to submit their timelines or questions
+
+2. Our company's backend:
+    1. We have a product demand AI - where analyse the demand for a product by analysing signals from shops, online forums, videos etc.
+    2. Based on the demand and our pool of manufacturers details, we come up with a BOM for a product.
+    3. we package this BOm and start a bid, the bid is open for a period of time based on engament from manufacturers
+    4. once the bid is sealed, we arrange timelines by engaging with the manufacturers.
+    5. we also help plan the logistics 
+    6. once a product is completed, we sell it on all leading online and offline platforms.
+
+
+
+with a heavy focus on using - https://google.github.io/adk-docs/get-started/quickstart/#agentpy
+i want to build the following , give me a gameplan, dont write code yet
+
+Cornerstone: ADK Hackathon Game Plan (3-Hour Focus)
+Mission: Optimize the repeatable business process of crowdsourcing, pricing, and coordinating decentralized micro-manufacturing capacity for high-demand knickknacks.
+Core ADK Strategy: Use a Python custom Tool to handle the complex, data-intensive "Bid Optimization" logic, and a second Agent for the "Chatbot Interaction."
+Phase 1: Foundation & Bid Optimization Tool (Time: 45 min)
+This phase ensures the core business logic is encapsulated in a callable Python function, meeting the "Asset Quality" criteria.
+1. Data Mocking (The Cornerstone Data Pool)
+Action 1.1: Create a Python file (e.g., data_mocks.py) to hardcode two essential lists:
+MOCK_MAKERS: ∼10 manufacturers with id, skill (CNC, 3D), base_rate (simulates cost), max_capacity, and location (lat/lng for map visualization).
+MOCK_BIDS: A list of ∼8 simulated bids for a single target job (e.g., QTY 5000 CNC units), with each bid containing maker_id, bid_price_per_unit, and max_batch_size.
+Action 1.2: Hardcode the current high-demand product specs (e.g., job_id: 'KNICK_2025', required_qty: 5000, required_skill: 'CNC').
+2. ADK Tool Development (The BidOptimizer)
+Action 2.1 (Tool Logic): Define a Python class BidOptimizer(Tool) (inheriting from the ADK's Tool class).
+Action 2.2 (Core Function): Implement the function select_winning_bids(job_id, required_qty, bids_list).
+The logic must sort the bids_list by price and iteratively select bids until the required_qty is met.
+It must calculate the Total_Cost and a mock Total_Lead_Time (e.g., based on the number of winning makers).
+Action 2.3 (Output Schema): Ensure this tool returns a single, clean JSON object with the final supply chain plan: {"status": "FULFILLED", "total_cost": "$X,XXX", "total_lead_time_days": 15, "winning_makers": [...]}.
+Phase 2: Agent Orchestration & Core Demo (Time: 75 min)
+This phase uses the ADK Agent to reason and call the tool, proving the automation of your business process, satisfying the "Innovation" criteria.
+3. The Supply Chain Orchestrator Agent
+Action 3.1 (Initialization): Create the primary Agent instance, the CornerstoneOrchestrator.
+Action 3.2 (Prompt Engineering): Write a strict System Prompt defining the Agent's persona: "You are an expert supply chain optimizer for Cornerstone. Your sole function is to call the bid_optimizer tool to select the cheapest, most efficient set of manufacturers for any given job."
+Action 3.3 (Execution): Write a Python script (main.py) that performs the full repeatable workflow:
+Simulate a Distributor query (e.g., a simple string).
+The Agent uses its reasoning to determine it needs the BidOptimizer tool.
+The Agent calls the tool with the hardcoded job/bid data.
+CRITICAL: The Agent summarizes the tool's JSON output in natural language for the end-user (Distributor).
+Proof Point: Print the full ADK execution trace to the console to show the Agent calling the tool.
+4. The Post-Bid Chatbot Agent (Timeline Manager)
+Action 4.1 (Second Agent): Create a separate Agent instance, the TimelineManagerAgent. This demonstrates Multi-Agent Collaboration.
+Action 4.2 (Mock Tool): Give this Agent a simple mock tool: update_timeline(maker_id, new_completion_date).
+Action 4.3 (Execution): Write a simple interaction:
+User query: "Maker_A has a delay, need 2 more days for KNICK_2025."
+The Agent calls the update_timeline tool.
+The Agent responds: "Acknowledged. The system has updated Maker A's schedule. Overall logistics have been recalculated." (This demonstrates handling the exception/workflow).
+Phase 3: UI Mockup & Submission Prep (Time: 60 min)
+The final visual presentation and submission preparation to maximize the "User Intuitiveness" score.
+5. Manufacturer UI Mockup (index.html)
+Action 5.1 (Registration): Create the high-fidelity UI for the Manufacturer Capacity Registration (Section 1.1) using HTML/Tailwind CSS. Ensure fields for Skill and Available Capacity are prominent.
+Action 5.2 (Bidding Window): Mock the Rolling Bid Window (Section 1.2). Display the hardcoded job opportunity (KNICK_2025) with a form for the Maker to submit a mock bid.
+Action 5.3 (Chatbot Mock): Create a static chat window in the UI to visually represent the TimelineManagerAgent (Section 1.3), showing a sample interaction where a Maker asks to update a deadline.
+6. Submission & Wrap-up
+Action 6.1 (One Pager): Draft the One Pager now. The central theme must be: "Cornerstone's BidOptimizer ADK Tool abstracts complex supply chain mathematics into a single, autonomous decision, maximizing US micro-manufacturer profit and speed."
+Action 6.2 (GitHub): Ensure all Python files (data_mocks.py, bid_optimizer.py, main.py) and the index.htmlfile are committed with clear README comments describing the ADK workflow.
+
