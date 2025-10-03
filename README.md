@@ -93,7 +93,7 @@ Open browser to: **http://localhost:5001**
 4. **Timeline Manager** - Handles manufacturer schedule updates and delays
 5. **Logistics Coordinator** - Plans shipping routes and consolidation
 
-### 🔧 **17 Custom Tools**
+### **17 Custom Tools**
 
 Each agent has specialized tools for its domain:
 - `analyze_market_trends()` - Identifies high-demand products
@@ -102,7 +102,7 @@ Each agent has specialized tools for its domain:
 - `plan_logistics()` - Creates shipping and consolidation plans
 - And 13 more...
 
-### 🎯 **Multi-Agent Orchestration**
+### **Multi-Agent Orchestration**
 
 **SequentialAgent Workflow:**
 - `master_orchestrator_agent` uses ADK's `SequentialAgent` class
