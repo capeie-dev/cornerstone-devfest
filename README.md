@@ -2,7 +2,7 @@
 
 **Powered by Google's Agent Development Kit (ADK)**
 
-Cornerstone connects US micro-manufacturers (CNC shops, 3D printing facilities) with high-demand distributors through AI-powered bid optimization and autonomous timeline management.
+Cornerstone connects micro-manufacturers (CNC shops, 3D printing facilities) with high-demand distributors through AI-powered bid optimization and autonomous timeline management.
 
 ---
 
