@@ -95,12 +95,32 @@ Open browser to: **http://localhost:5001**
 
 ### **17 Custom Tools**
 
-Each agent has specialized tools for its domain:
-- `analyze_market_trends()` - Identifies high-demand products
-- `optimize_bids()` - Selects optimal manufacturer combination
-- `update_timeline()` - Recalculates project schedules
-- `plan_logistics()` - Creates shipping and consolidation plans
-- And 13 more...
+**Demand Agent (3 tools):**
+- `analyze_market_trends()` - Scrapes social media, forums, search trends for high-demand products
+- `get_product_recommendations()` - Returns top products by demand score
+- `calculate_demand_forecast()` - Predicts demand over 30/60/90 day timeframes
+
+**Bid Coordinator Agent (4 tools):**
+- `create_bid_window()` - Opens rolling bid window for a job
+- `get_bid_status()` - Returns current bids and window status
+- `close_bid_window()` - Closes window and prepares for optimization
+- `notify_winners()` - Sends notifications to selected manufacturers
+
+**Cornerstone Optimizer Agent (3 tools):**
+- `optimize_bids()` - AI-powered selection of optimal manufacturer combination
+- `get_job_details()` - Returns job specifications and requirements
+- `list_manufacturers()` - Shows all registered manufacturers and capabilities
+
+**Timeline Manager Agent (3 tools):**
+- `update_timeline()` - Handles manufacturer schedule changes and delays
+- `get_timeline_status()` - Returns current project timelines
+- `send_message_to_manufacturer()` - Sends notifications about timeline updates
+
+**Logistics Coordinator Agent (4 tools):**
+- `plan_logistics()` - Creates shipping routes and consolidation plans
+- `optimize_shipping_costs()` - Finds cheapest shipping combination
+- `track_shipments()` - Returns real-time shipment tracking
+- `coordinate_consolidation()` - Plans multi-manufacturer consolidation at distribution centers
 
 ### **Multi-Agent Orchestration**
 
