@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Active Projects - Cornerstone</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
@@ -18,12 +19,12 @@
                     <h1 class="text-2xl font-bold">Cornerstone</h1>
                 </div>
                 <nav class="flex items-center space-x-6">
-                    <a href="dashboard.html" class="hover:text-blue-200 transition">Dashboard</a>
-                    <a href="projects.html" class="hover:text-blue-200 transition font-semibold border-b-2 border-white">Active Projects</a>
+                    <a href="/dashboard" class="hover:text-blue-200 transition">Dashboard</a>
+                    <a href="/projects" class="hover:text-blue-200 transition font-semibold border-b-2 border-white">Active Projects</a>
                     <div class="bg-blue-500 px-4 py-2 rounded-lg">
                         <span class="text-sm font-semibold">Precision CNC Ohio</span>
                     </div>
-                    <a href="index.html" class="hover:text-blue-200 transition text-sm">Logout</a>
+                    <a href="/" class="hover:text-blue-200 transition text-sm">Logout</a>
                 </nav>
             </div>
         </div>
@@ -137,7 +138,7 @@
                     </svg>
                     <h3 class="text-lg font-bold text-gray-600 mb-2">Win More Bids</h3>
                     <p class="text-sm text-gray-500 mb-4">Submit competitive bids to fill your production capacity</p>
-                    <a href="dashboard.html" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+                    <a href="/dashboard" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
                         View Active Bids
                     </a>
                 </div>
@@ -194,7 +195,7 @@
                         <!-- Chat Window -->
                         <div class="bg-white rounded-lg border border-gray-300 h-96 flex flex-col">
                             <!-- Chat Messages -->
-                            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
                                 <!-- Welcome Message -->
                                 <div class="flex items-start">
                                     <div class="bg-blue-50 rounded-lg px-4 py-3 max-w-md border border-blue-200">
@@ -253,9 +254,10 @@
                             <!-- Chat Input -->
                             <div class="border-t border-gray-200 p-4">
                                 <div class="flex space-x-2">
-                                    <input type="text" placeholder="Type your message..." 
-                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                    <input id="chat-input" type="text" placeholder="Type your message..." 
+                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                           onkeypress="if(event.key==='Enter') sendTimelineMessage()">
+                                    <button onclick="sendTimelineMessage()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
                                         Send
                                     </button>
                                 </div>
@@ -313,6 +315,110 @@
                 closeProject();
             }
         });
+
+        // Timeline Manager Chat Integration
+        async function sendTimelineMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            addTypingIndicator();
+            
+            try {
+                // Parse message for timeline update (simple pattern matching)
+                // Example: "I need 2 more days" or "delay of 3 days"
+                const delayMatch = message.match(/(\d+)\s*(more\s*)?days?/i);
+                
+                if (delayMatch) {
+                    const delayDays = parseInt(delayMatch[1]);
+                    const newDate = new Date();
+                    newDate.setDate(newDate.getDate() + delayDays + 2); // Current + delay
+                    const formattedDate = newDate.toISOString().split('T')[0];
+                    
+                    // Call Timeline Manager API
+                    const result = await updateTimeline('MAKER_A', formattedDate, message);
+                    
+                    removeTypingIndicator();
+                    
+                    if (result.status === 'success') {
+                        const report = result.report;
+                        const botMessage = `✓ Acknowledged. I've updated your timeline for KNICK_2025.\n\nOld Completion: ${report.old_completion_date}\nNew Completion: ${report.new_completion_date}\nDelay: ${report.delay_days} days\n\nThe overall project logistics have been recalculated. Your new completion date is confirmed.`;
+                        addChatMessage(botMessage, 'bot');
+                    } else {
+                        addChatMessage('Sorry, I encountered an error updating the timeline.', 'bot');
+                    }
+                } else {
+                    // Generic response for non-timeline messages
+                    removeTypingIndicator();
+                    addChatMessage('I can help you update timelines. Try saying something like "I need 2 more days" or ask about project status.', 'bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+                addChatMessage('Failed to connect to Timeline Manager. Make sure Flask server is running.', 'bot');
+            }
+        }
+
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chat-messages');
+            const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            if (sender === 'user') {
+                chatMessages.innerHTML += `
+                    <div class="flex justify-end">
+                        <div class="bg-blue-600 text-white rounded-lg px-4 py-3 max-w-md">
+                            <p class="text-sm">${message}</p>
+                            <p class="text-xs text-blue-200 mt-1">${time}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                chatMessages.innerHTML += `
+                    <div class="flex items-start">
+                        <div class="bg-white rounded-lg px-4 py-3 max-w-md shadow-sm border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-2">
+                                    TM
+                                </div>
+                                <p class="font-semibold text-gray-800">Timeline Manager</p>
+                            </div>
+                            <p class="text-sm text-gray-700" style="white-space: pre-line">${message}</p>
+                            <p class="text-xs text-gray-500 mt-2">${time}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML += `
+                <div id="typing-indicator" class="flex items-start">
+                    <div class="bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-200">
+                        <div class="flex space-x-2">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
     </script>
 </body>
 </html>
