@@ -60,3 +60,41 @@ Action 5.3 (Chatbot Mock): Create a static chat window in the UI to visually re
 Action 6.1 (One Pager): Draft the One Pager now. The central theme must be: "Cornerstone's BidOptimizer ADK Tool abstracts complex supply chain mathematics into a single, autonomous decision, maximizing US micro-manufacturer profit and speed."
 Action 6.2 (GitHub): Ensure all Python files (data_mocks.py, bid_optimizer.py, main.py) and the index.htmlfile are committed with clear README comments describing the ADK workflow.
 
+┌─────────────────────────────────────────────┐
+│           Frontend (HTML/JS)                │
+│  - dashboard.html                           │
+│  - projects.html                            │
+│  - admin.html (new)                         │
+│  - demo.html (new)                          │
+└──────────────┬──────────────────────────────┘
+               │ HTTP Requests
+               ↓
+┌─────────────────────────────────────────────┐
+│      Flask Backend (app.py)                 │
+│  - /api/analyze-demand                      │
+│  - /api/create-bid                          │
+│  - /api/submit-bid                          │
+│  - /api/close-bid                           │
+│  - /api/update-timeline                     │
+│  - /api/plan-logistics                      │
+└──────────────┬──────────────────────────────┘
+               │ Python imports
+               ↓
+┌─────────────────────────────────────────────┐
+│         ADK Agents (6 total)                │
+│  1. demand_agent                            │
+│  2. bid_coordinator_agent                   │
+│  3. cornerstone_agent (existing)            │
+│  4. timeline_agent (existing)               │
+│  5. logistics_agent                         │
+└──────────────┬──────────────────────────────┘
+               │ Tool calls
+               ↓
+┌─────────────────────────────────────────────┐
+│      Business Logic & Mock Data             │
+│  - analyze_market_trends()                  │
+│  - create_bid_window()                      │
+│  - optimize_bids()                          │
+│  - update_timeline()                        │
+│  - plan_logistics()                         │
+└─────────────────────────────────────────────┘

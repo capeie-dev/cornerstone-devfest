@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Cornerstone</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
@@ -18,12 +19,12 @@
                     <h1 class="text-2xl font-bold">Cornerstone</h1>
                 </div>
                 <nav class="flex items-center space-x-6">
-                    <a href="dashboard.html" class="hover:text-blue-200 transition font-semibold border-b-2 border-white">Dashboard</a>
-                    <a href="projects.html" class="hover:text-blue-200 transition">Active Projects</a>
+                    <a href="/dashboard" class="hover:text-blue-200 transition font-semibold border-b-2 border-white">Dashboard</a>
+                    <a href="/projects" class="hover:text-blue-200 transition">Active Projects</a>
                     <div class="bg-blue-500 px-4 py-2 rounded-lg">
                         <span class="text-sm font-semibold">Precision CNC Ohio</span>
                     </div>
-                    <a href="index.html" class="hover:text-blue-200 transition text-sm">Logout</a>
+                    <a href="/" class="hover:text-blue-200 transition text-sm">Logout</a>
                 </nav>
             </div>
         </div>
@@ -52,7 +53,7 @@
                     <h3 class="text-xl font-bold mb-2">You have 1 active project</h3>
                     <p class="text-purple-100">Manage timelines and communicate with the Timeline Manager</p>
                 </div>
-                <a href="projects.html" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition transform hover:scale-105">
+                <a href="/projects" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition transform hover:scale-105">
                     View Projects →
                 </a>
             </div>
@@ -114,14 +115,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Bid Price per Unit ($)</label>
-                            <input type="number" step="0.01" placeholder="e.g., 2.35" 
+                            <input id="bid-price" type="number" step="0.01" placeholder="e.g., 2.35" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                             <p class="text-xs text-gray-500 mt-1">Lower bids have higher chance of selection</p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Maximum Batch Size (units)</label>
-                            <input type="number" placeholder="e.g., 2000" 
+                            <input id="bid-quantity" type="number" placeholder="e.g., 2000" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                             <p class="text-xs text-gray-500 mt-1">How many units can you produce?</p>
                         </div>
@@ -132,7 +133,7 @@
                             <p class="mb-1">📊 <strong>Current Bids:</strong> 8 manufacturers competing</p>
                             <p>🏆 <strong>Lowest Bid:</strong> $2.20/unit (Texas CNC Works)</p>
                         </div>
-                        <button type="button" onclick="showBidSuccess()" 
+                        <button type="button" onclick="submitBid()" 
                                 class="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition transform hover:scale-105">
                             Submit Bid
                         </button>
@@ -178,11 +179,60 @@
 
     <!-- JavaScript -->
     <script>
-        function showBidSuccess() {
-            document.getElementById('bid-success').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('bid-success').classList.add('hidden');
-            }, 5000);
+        async function submitBid() {
+            const price = document.getElementById('bid-price').value;
+            const quantity = document.getElementById('bid-quantity').value;
+            
+            if (!price || !quantity) {
+                alert('Please enter both price and quantity');
+                return;
+            }
+            
+            // Show loading state
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Submitting...';
+            
+            try {
+                // Call Flask API to optimize bids
+                const result = await optimizeBids('KNICK_2025', 5000, 'CNC');
+                
+                if (result.status === 'success') {
+                    // Show success message with optimization results
+                    const successDiv = document.getElementById('bid-success');
+                    const report = result.report;
+                    
+                    successDiv.innerHTML = `
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            <div>
+                                <p class="text-blue-800 font-semibold mb-2">✓ Bid Optimization Complete!</p>
+                                <div class="text-sm text-gray-700 space-y-1">
+                                    <p><strong>Total Cost:</strong> ${report.total_cost}</p>
+                                    <p><strong>Manufacturers Selected:</strong> ${report.num_manufacturers}</p>
+                                    <p><strong>Lead Time:</strong> ${report.total_lead_time_days} days</p>
+                                    <p class="mt-2 text-blue-700"><strong>Winners:</strong> ${report.winning_makers.map(m => m.maker_id).join(', ')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    successDiv.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        successDiv.classList.add('hidden');
+                    }, 8000);
+                } else {
+                    alert('Optimization failed: ' + result.error_message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit bid. Make sure Flask server is running.');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Submit Bid';
+            }
         }
     </script>
 </body>
